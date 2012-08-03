@@ -18,6 +18,7 @@ set -o xtrace
 GUEST_PASSWORD=${GUEST_PASSWORD:-secrete}
 STAGING_DIR=${STAGING_DIR:-stage}
 DO_TGZ=${DO_TGZ:-1}
+XS_TOOLS_PATH=${XS_TOOLS_PATH:-"/root/xs-tools.deb"}
 
 # Install basics
 chroot $STAGING_DIR apt-get update
@@ -27,8 +28,8 @@ chroot $STAGING_DIR pip install xenapi
 
 # Install XenServer guest utilities
 TOOLS_DEB=/root/xs-tools.deb
-cp $TOOLS_DEB $STAGING_DIR/root
-chroot $STAGING_DIR dpkg -i $TOOLS_DEB
+cp $XS_TOOLS_PATH ${STAGING_DIR}${XS_TOOLS_PATH}
+chroot $STAGING_DIR dpkg -i $XS_TOOLS_PATH
 chroot $STAGING_DIR update-rc.d -f xe-linux-distribution remove
 chroot $STAGING_DIR update-rc.d xe-linux-distribution defaults
 
