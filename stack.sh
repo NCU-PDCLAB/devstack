@@ -2129,29 +2129,6 @@ if is_service_enabled n-api; then
     fi
 fi
 
-# If we're using Quantum (i.e. q-svc is enabled), network creation has to
-# happen after we've started the Quantum service.
-if is_service_enabled mysql && is_service_enabled nova; then
-    if [[ "$NOVA_USE_QUANTUM_API" = "v1" ]]; then
-        # Create a small network
-        $NOVA_DIR/bin/nova-manage network create private $FIXED_RANGE 1 $FIXED_NETWORK_SIZE $NETWORK_CREATE_ARGS
-
-        # Create some floating ips
-        $NOVA_DIR/bin/nova-manage floating create $FLOATING_RANGE
-
-        # Create a second pool
-        $NOVA_DIR/bin/nova-manage floating create --ip_range=$TEST_FLOATING_RANGE --pool=$TEST_FLOATING_POOL
-    elif [[ "$NOVA_USE_QUANTUM_API" = "v2" ]]; then
-        TENANT_ID=$(keystone tenant-list | grep " demo " | get_field 1)
-
-        # Create a small network
-        # Since quantum command is executed in admin context at this point,
-        # --tenant_id needs to be specified.
-        NET_ID=$(quantum net-create --tenant_id $TENANT_ID net1 | grep ' id ' | get_field 2)
-        quantum subnet-create --tenant_id $TENANT_ID --ip_version 4 --gateway $NETWORK_GATEWAY $NET_ID $FIXED_RANGE
-    fi
-fi
-
 # Launching nova-compute should be as simple as running ``nova-compute`` but
 # have to do a little more than that in our script.  Since we add the group
 # ``libvirtd`` to our user in this script, when nova-compute is run it is
@@ -2273,6 +2250,32 @@ if is_service_enabled g-reg; then
             glance --os-auth-token $TOKEN --os-image-url http://$GLANCE_HOSTPORT image-create --name "${IMAGE_NAME%.img}" --public --container-format ami --disk-format ami ${KERNEL_ID:+--property kernel_id=$KERNEL_ID} ${RAMDISK_ID:+--property ramdisk_id=$RAMDISK_ID} < "${IMAGE}"
         fi
     done
+fi
+
+# Setup network
+# =============
+
+# If we're using Quantum (i.e. q-svc is enabled), network creation has to
+# happen after we've started the Quantum service.
+if is_service_enabled mysql && is_service_enabled nova; then
+    if [[ "$NOVA_USE_QUANTUM_API" = "v1" ]]; then
+        # Create a small network
+        $NOVA_DIR/bin/nova-manage network create private $FIXED_RANGE 1 $FIXED_NETWORK_SIZE $NETWORK_CREATE_ARGS
+
+        # Create some floating ips
+        $NOVA_DIR/bin/nova-manage floating create $FLOATING_RANGE
+
+        # Create a second pool
+        $NOVA_DIR/bin/nova-manage floating create --ip_range=$TEST_FLOATING_RANGE --pool=$TEST_FLOATING_POOL
+    elif [[ "$NOVA_USE_QUANTUM_API" = "v2" ]]; then
+        TENANT_ID=$(keystone tenant-list | grep " demo " | get_field 1)
+
+        # Create a small network
+        # Since quantum command is executed in admin context at this point,
+        # --tenant_id needs to be specified.
+        NET_ID=$(quantum net-create --tenant_id $TENANT_ID net1 | grep ' id ' | get_field 2)
+        quantum subnet-create --tenant_id $TENANT_ID --ip_version 4 --gateway $NETWORK_GATEWAY $NET_ID $FIXED_RANGE
+    fi
 fi
 
 
