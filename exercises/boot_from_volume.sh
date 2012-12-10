@@ -143,7 +143,7 @@ fi
 # FIXME (anthony) - python-novaclient should accept a volume_name for the attachment param?
 DEVICE=/dev/vdb
 VOLUME_ID=`nova volume-list | grep $VOL_NAME  | get_field 1`
-nova volume-attach $INSTANCE_NAME $VOLUME_ID $DEVICE
+ATTACHED_DEVICE=`nova volume-attach $INSTANCE_NAME $VOLUME_ID $DEVICE | grep device | cut -d"|" -f3 | tr -d " "`
 
 # Wait till volume is attached
 if ! timeout $ACTIVE_TIMEOUT sh -c "while ! nova volume-list | grep $VOL_NAME | grep in-use; do sleep 1; done"; then
@@ -159,8 +159,8 @@ ssh -o StrictHostKeyChecking=no -i $KEY_FILE ${DEFAULT_INSTANCE_USER}@$FLOATING_
 set -o errexit
 set -o xtrace
 sudo mkdir -p $STAGING_DIR
-sudo mkfs.ext3 -b 1024 $DEVICE 1048576
-sudo mount $DEVICE $STAGING_DIR
+sudo mkfs.ext3 -b 1024 $ATTACHED_DEVICE 1048576
+sudo mount $ATTACHED_DEVICE $STAGING_DIR
 # The following lines create a writable empty file so that we can scp
 # the actual file
 sudo touch $STAGING_DIR/cirros-0.3.0-x86_64-rootfs.img.gz
@@ -194,6 +194,18 @@ sudo umount $CIRROS_DIR
 sudo umount $STAGING_DIR || true
 EOF
 
+# As the umount is failed (I guess some processes are still holding it, stop
+# the instance - so that the volume is not used for sure.  If you don't stop
+# the instance, you can't detach the volume on xen, because it is not
+# unmounted.
+nova stop $VM_UUID
+
+# check that the status is SHUTOFF within ACTIVE_TIMEOUT seconds
+if ! timeout $ACTIVE_TIMEOUT sh -c "while ! nova show $VM_UUID | grep status | grep -q SHUTOFF; do sleep 1; done"; then
+    echo "Failed to stop instance!"
+    exit 1
+fi
+
 # Detach the volume from the builder instance
 nova volume-detach $INSTANCE_NAME $VOLUME_ID
 
@@ -224,6 +236,8 @@ if ! timeout $ASSOCIATE_TIMEOUT sh -c "while ! ping -c1 -w1 $FLOATING_IP; do sle
     echo "Couldn't ping volume-backed server with floating ip"
     exit 1
 fi
+
+sleep 10
 
 # Make sure our volume-backed instance launched
 ssh -o StrictHostKeyChecking=no -i $KEY_FILE ${DEFAULT_INSTANCE_USER}@$FLOATING_IP << EOF
