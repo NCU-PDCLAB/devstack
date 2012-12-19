@@ -379,7 +379,7 @@ if [ "$WAIT_TILL_LAUNCH" = "1" ]  && [ -e ~/.ssh/id_rsa.pub  ] && [ "$COPYENV" =
     set +x
     echo -n "Waiting for startup script to finish"
     while [ `ssh_no_check -q stack@$DOMU_IP pgrep -c run.sh` -ge 1 ]
-    do 
+    do
         sleep 10
         echo -n "."
     done
