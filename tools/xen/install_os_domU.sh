@@ -377,7 +377,7 @@ if [ "$WAIT_TILL_LAUNCH" = "1" ]  && [ -e ~/.ssh/id_rsa.pub  ] && [ "$COPYENV" =
     done
 
     set +x
-    echo -n "Installing devstack"
+    echo -n "Waiting for startup script to finish"
     while [ `ssh_no_check -q stack@$DOMU_IP pgrep -c run.sh` -ge 1 ]
     do 
         sleep 10
