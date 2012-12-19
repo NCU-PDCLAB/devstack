@@ -376,6 +376,7 @@ if [ "$WAIT_TILL_LAUNCH" = "1" ]  && [ -e ~/.ssh/id_rsa.pub  ] && [ "$COPYENV" =
         sleep 10
     done
 
+    set +x
     echo -n "Installing devstack"
     while [ `ssh_no_check -q stack@$DOMU_IP pgrep -c run.sh` -ge 1 ]
     do 
@@ -383,6 +384,7 @@ if [ "$WAIT_TILL_LAUNCH" = "1" ]  && [ -e ~/.ssh/id_rsa.pub  ] && [ "$COPYENV" =
         echo -n "."
     done
     echo "done!"
+    set -x
 
     # output the run.sh.log
     ssh_no_check -q stack@$DOMU_IP 'cat run.sh.log' |
