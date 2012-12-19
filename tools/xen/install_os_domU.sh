@@ -390,7 +390,7 @@ if [ "$WAIT_TILL_LAUNCH" = "1" ]  && [ -e ~/.ssh/id_rsa.pub  ] && [ "$COPYENV" =
     ssh_no_check -q stack@$DOMU_IP 'cat run.sh.log'
 
     # Fail if the expected text is not found
-    ssh_no_check -q stack@$DOMU_IP 'cat run.sh.log' | grep -q 'stack.sh completed in'
+    ssh_no_check -q stack@$DOMU_IP 'cat run.sh.log' | grep -q 'bruhaha'
 
     echo "################################################################################"
     echo ""
