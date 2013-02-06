@@ -4,11 +4,12 @@ set -o errexit
 set -o xtrace
 
 source xenrc
+source ../../../stackrc
 
-THIS_DIR=$(cd $(dirname "$0") && pwd)
-. $THIS_DIR/../../functions
-. $THIS_DIR/scripts/on_exit.sh
-cd $THIS_DIR
+#THIS_DIR=$(cd $(dirname "$0") && pwd)
+#. $THIS_DIR/../../functions
+#. $THIS_DIR/scripts/on_exit.sh
+#cd $THIS_DIR
 
 source lib/xenapi_plugins.sh
 install_nova_and_quantum_xenapi_plugins

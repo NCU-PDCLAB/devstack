@@ -1,10 +1,4 @@
 #!/bin/bash
-
-#
-# XenServer specific defaults for the /tools/xen/ scripts
-# Similar to stackrc, you can override these in your localrc
-#
-
 # Name of this guest
 GUEST_NAME=${GUEST_NAME:-DevStackOSDomU}
 
@@ -70,7 +64,3 @@ UBUNTU_INST_IP="dhcp"
 UBUNTU_INST_NAMESERVERS=""
 UBUNTU_INST_NETMASK=""
 UBUNTU_INST_GATEWAY=""
-
-# Load stackrc defaults
-# then override with settings from localrc
-cd ../.. && source ./stackrc && cd $TOP_DIR
