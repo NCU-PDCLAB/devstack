@@ -11,7 +11,7 @@ THIS_DIR=$(cd $(dirname "$0") && pwd)
 cd $THIS_DIR
 
 source lib/xenapi_plugins.sh
-install_xenapi_plugins
+install_nova_and_quantum_xenapi_plugins
 
 #
 # Configure Networking
