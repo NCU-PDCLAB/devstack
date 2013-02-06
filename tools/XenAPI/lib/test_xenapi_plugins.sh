@@ -3,6 +3,9 @@
 set -eux
 
 XAPI_PLUGIN_DIR=$(mktemp -d)
+
+source ../../stackrc
+
 source lib/xenapi_plugins.sh
 install_nova_and_quantum_xenapi_plugins
 

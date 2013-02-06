@@ -12,18 +12,21 @@ install_xenapi_plugin()
     ZIPBALL_URL=$1
     PLUGIN_LOCATION=$2
 
-    wget $ZIPBALL_URL -O zipball --no-check-certificate
 
-    mkdir tmp
-    unzip -o zipball -d ./tmp
+    tmp_dir=$(mktemp -d)
+    (
+        cd $tmp_dir
+        wget $ZIPBALL_URL -O zipball --no-check-certificate
+        unzip -o zipball -d ./
 
-    XAPI_PLUGIN_DIR=${XAPI_PLUGIN_DIR:-"/etc/xapi.d/plugins/"}
-    if [ ! -d $XAPI_PLUGIN_DIR ]; then
-        XAPI_PLUGIN_DIR="/usr/lib/xcp/plugins/"
-    fi
+        XAPI_PLUGIN_DIR=${XAPI_PLUGIN_DIR:-"/etc/xapi.d/plugins/"}
+        if [ ! -d $XAPI_PLUGIN_DIR ]; then
+            XAPI_PLUGIN_DIR="/usr/lib/xcp/plugins/"
+        fi
 
-    cp -pr "./tmp/*/$PLUGIN_LOCATION"  $XAPI_PLUGIN_DIR
-    rm -rf ./tmp
+        cp -pr $tmp_dir/*/$PLUGIN_LOCATION $XAPI_PLUGIN_DIR
+    )
+    rm -rf $tmp_dir
 
     chmod a+x ${XAPI_PLUGIN_DIR}*
     mkdir -p /boot/guest
