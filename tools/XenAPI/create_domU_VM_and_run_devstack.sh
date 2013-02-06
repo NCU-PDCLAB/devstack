@@ -14,6 +14,8 @@ source ../../../stackrc
 source lib/xenapi_plugins.sh
 install_nova_and_quantum_xenapi_plugins
 
+mkdir -p /boot/guest
+
 #
 # Configure Networking
 #

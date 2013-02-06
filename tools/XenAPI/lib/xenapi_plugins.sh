@@ -29,7 +29,6 @@ install_xenapi_plugin()
     rm -rf $tmp_dir
 
     chmod a+x ${XAPI_PLUGIN_DIR}*
-    mkdir -p /boot/guest
 }
 
 install_nova_and_quantum_xenapi_plugins()
