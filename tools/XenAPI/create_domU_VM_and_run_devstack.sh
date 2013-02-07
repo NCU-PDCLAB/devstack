@@ -23,13 +23,13 @@ source lib/ubuntu_template.sh
 create_ubuntu_template_if_required
 create_ubuntu_vm
 
+vm_net_uuid=$(get_vm_data_network)
+pub_net_uuid=$(get_public_network)
+source lib/configure_devstack_vm_netorks.sh
+add_additional_vifs $GUEST_NAME $vm_net_uuid $pub_net_uuid
+
 source lib/devstack_injection.sh
 inject_devstack_into_vm
-
-VM_BR=$(get_vm_data_network)
-PUB_BR=$(get_public_network)
-source lib/configure_devstack_vm_netorks.sh
-configure_vifs $GUEST_NAME $MGT_BR $VM_BR $PUB_BR
 
 SNAME_FIRST_BOOT="before_first_boot"
 xe vm-snapshot vm="$GUEST_NAME" new-name-label="$SNAME_FIRST_BOOT"

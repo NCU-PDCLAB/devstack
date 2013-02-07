@@ -22,6 +22,29 @@ function wait_for_VM_to_halt() {
     set -x
 }
 
+create_ubuntu_install_template()
+{
+    # always update the preseed file, incase we have a newer one
+    PRESEED_URL=${PRESEED_URL:-""}
+    if [ -z "$PRESEED_URL" ]; then
+        PRESEED_URL="${HOST_IP}/devstackubuntupreseed.cfg"
+        HTTP_SERVER_LOCATION="/opt/xensource/www"
+        if [ ! -e $HTTP_SERVER_LOCATION ]; then
+            HTTP_SERVER_LOCATION="/var/www/html"
+            mkdir -p $HTTP_SERVER_LOCATION
+        fi
+        cp -f $TOP_DIR/devstackubuntupreseed.cfg $HTTP_SERVER_LOCATION
+        MIRROR=${MIRROR:-""}
+        if [ -n "$MIRROR" ]; then
+            sed -e "s,d-i mirror/http/hostname string .*,d-i mirror/http/hostname string $MIRROR," \
+                -i "${HTTP_SERVER_LOCATION}/devstackubuntupreseed.cfg"
+        fi
+    fi
+
+    # Update the template
+    $TOP_DIR/scripts/install_ubuntu_template.sh $PRESEED_URL
+}
+
 inject_script_to_install_xenserver_tools()
 {
     lib/ubuntu/prepare_guest_template.sh "$GUEST_NAME"
@@ -81,30 +104,10 @@ find_network()
 
 install_ubuntu_over_network()
 {
-    # always update the preseed file, incase we have a newer one
-    PRESEED_URL=${PRESEED_URL:-""}
-    if [ -z "$PRESEED_URL" ]; then
-        PRESEED_URL="${HOST_IP}/devstackubuntupreseed.cfg"
-        HTTP_SERVER_LOCATION="/opt/xensource/www"
-        if [ ! -e $HTTP_SERVER_LOCATION ]; then
-            HTTP_SERVER_LOCATION="/var/www/html"
-            mkdir -p $HTTP_SERVER_LOCATION
-        fi
-        cp -f $TOP_DIR/devstackubuntupreseed.cfg $HTTP_SERVER_LOCATION
-        MIRROR=${MIRROR:-""}
-        if [ -n "$MIRROR" ]; then
-            sed -e "s,d-i mirror/http/hostname string .*,d-i mirror/http/hostname string $MIRROR," \
-                -i "${HTTP_SERVER_LOCATION}/devstackubuntupreseed.cfg"
-        fi
-    fi
 
-    # Update the template
-    $TOP_DIR/scripts/install_ubuntu_template.sh $PRESEED_URL
+    create_ubuntu_install_template
 
-    # create a new VM with the given template
-    # creating the correct VIFs and metadata
-
-    vm_uuid=$(xe_min vm-install template="$UBUNTU_INST_TEMPLATE_NAME" new-name-label="$GUEST_NAME")
+    vm_uuid=$(xe vm-install template="$UBUNTU_INST_TEMPLATE_NAME" new-name-label="$GUEST_NAME" --minimal)
     destroy_vifs "$vm_uuid"
     xe vm-param-set uuid="$v" other-config:auto_poweron=true
     set_kernel_params "$vm_uuid" "flat_network_bridge=${VM_BR}"
@@ -133,5 +136,5 @@ create_ubuntu_template_if_required()
 
 create_ubuntu_vm()
 {
-    $(xe vm-install template="$TNAME" new-name-label="$GUEST_NAME")
+    xe vm-install template="$TNAME" new-name-label="$GUEST_NAME"
 }

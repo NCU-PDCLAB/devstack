@@ -1,11 +1,11 @@
 #!/bin/bash
 
-config_vifs()
+add_additional_vifs()
 {
     vm_name="$1"
-    management_net="$1"
     data_net="$2"
     public_net="$3"
     
-    #TODO
+    xe vif-create vm="$GUEST_NAME" network-uuid="$data_net" device="1"
+    xe vif-create vm="$GUEST_NAME" network-uuid="$public_net" device="2"
 }
