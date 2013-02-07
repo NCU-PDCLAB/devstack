@@ -16,7 +16,7 @@ MGT_BR=$(get_management_network)
 HOST_IP=$(get_xenserver_management_ip)
 
 source lib/cleanup.sh
-do_cleanup
+clean_previous_runs
 
 GUEST_NAME=${GUEST_NAME:-"DevStackOSDomU"}
 source lib/ubuntu_template.sh
