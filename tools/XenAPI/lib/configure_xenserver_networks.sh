@@ -4,6 +4,8 @@
 
 get_xenserver_management_ip()
 {
+
+    #TODO mgmt_ip=$(echo $XENAPI_CONNECTION_URL | tr -d -c '1234567890.')
     echo ${HOST_IP:-`ifconfig xenbr0 | grep "inet addr" | cut -d ":" -f2 | sed "s/ .*//"`}
 }
 
