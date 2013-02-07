@@ -20,7 +20,7 @@ clean_previous_runs
 
 GUEST_NAME=${GUEST_NAME:-"DevStackOSDomU"}
 source lib/ubuntu_template.sh
-#TODO create_ubuntu_template
+create_ubuntu_template_if_required
 create_ubuntu_vm
 
 source lib/devstack_injection.sh

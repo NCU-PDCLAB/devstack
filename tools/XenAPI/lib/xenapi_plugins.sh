@@ -12,7 +12,6 @@ install_xenapi_plugin()
     ZIPBALL_URL=$1
     PLUGIN_LOCATION=$2
 
-
     tmp_dir=$(mktemp -d)
     (
         cd $tmp_dir

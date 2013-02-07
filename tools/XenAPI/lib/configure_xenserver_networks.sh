@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#TODO
-
 get_xenserver_management_ip()
 {
     #TODO mgmt_ip=$(echo $XENAPI_CONNECTION_URL | tr -d -c '1234567890.')
@@ -10,8 +8,12 @@ get_xenserver_management_ip()
 
 get_management_network()
 {
+    # TODO - should discover the correct one
     echo "xenbr0"
 }
+
+
+#TODO
 
 get_vm_data_network()
 {
