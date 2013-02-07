@@ -1,7 +1,5 @@
 #!/bin/bash
 
-TNAME="devstack_template"
-
 function wait_for_VM_to_halt() {
     $GUEST_NAME="$1"
     set +x
@@ -78,6 +76,7 @@ install_ubuntu_over_network()
     SNAME_PREPARED="template_prepared"
     snuuid=$(xe vm-snapshot vm="$GUEST_NAME" new-name-label="$SNAME_PREPARED")
     xe snapshot-clone uuid=$snuuid new-name-label="$TNAME"
+    xe vm-destroy vm="$SNAME_PREPARED"
 }
 
 create_ubuntu_vm()
@@ -85,10 +84,7 @@ create_ubuntu_vm()
     templateuuid=$(xe template-list name-label="$TNAME")
     if [ -z "$templateuuid" ]; then
         install_ubuntu_over_network
-    else
-        #
-        # Template already installed, create VM from template
-        #
-        $(xe vm-install template="$TNAME" new-name-label="$GUEST_NAME")
     fi
+
+    $(xe vm-install template="$TNAME" new-name-label="$GUEST_NAME")
 }
