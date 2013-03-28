@@ -17,7 +17,14 @@ function zip_snapshot_location {
 }
 
 function create_directory_for_kernels {
-    mkdir -p "/boot/guest"
+    if [ -d "/boot/guest" ]
+    then
+        echo "INFO: /boot/guest directory already exists, using that" >&2
+    else
+        local LOCALPATH="$(get_local_sr_path)/os-guest-kernels"
+        mkdir -p $LOCALPATH
+        ln -s $LOCALPATH /boot/guest
+    fi
 }
 
 function extract_remote_zipball {
@@ -52,4 +59,12 @@ function install_xapi_plugins_from_zipball {
     cp -pr $EXTRACTED_PLUGINS_DIR/* $XAPI_PLUGIN_DIR
     rm -rf $EXTRACTED_FILES
     chmod a+x ${XAPI_PLUGIN_DIR}*
+}
+
+function get_local_sr {
+    xe sr-list name-label="Local storage" --minimal
+}
+
+function get_local_sr_path {
+    echo "/var/run/sr-mount/$(get_local_sr)"
 }
